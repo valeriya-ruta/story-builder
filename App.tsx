@@ -217,13 +217,13 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+      <main className="w-full md:max-w-[600px] lg:max-w-[650px] mx-auto">
+        <div className="grid grid-cols-1 gap-6">
           {stories.map((story, index) => (
             <div key={story.id} className="relative group/wrapper">
-              <div className="absolute -left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover/wrapper:opacity-100 transition-opacity z-20">
-                {index > 0 && <button onClick={() => moveStory(index, index - 1)} className="bg-white border border-gray-100 rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>}
-                {index < stories.length - 1 && <button onClick={() => moveStory(index, index + 1)} className="bg-white border border-gray-100 rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>}
+              <div className="absolute -left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 transition-opacity z-20">
+                {index > 0 && <button onClick={() => moveStory(index, index - 1)} className="bg-white border border-gray-200 rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>}
+                {index < stories.length - 1 && <button onClick={() => moveStory(index, index + 1)} className="bg-white border border-gray-200 rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>}
               </div>
               <StoryCard story={story} index={index} onUpdate={updateStory} onDelete={deleteStory} />
             </div>

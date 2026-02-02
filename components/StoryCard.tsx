@@ -28,15 +28,10 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, index, onUpdate, onDelete 
     <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-6 flex flex-col gap-4 group transition-all hover:shadow-md h-full min-h-[400px]">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="cursor-grab active:cursor-grabbing">
-            <GripIcon />
-          </div>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-            Сторіс {index + 1}
-          </h3>
-        </div>
-        <button 
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+          Сторіс {index + 1}
+        </h3>
+        <button
           onClick={() => onDelete(story.id)}
           className="text-gray-300 hover:text-red-500 transition-colors p-1"
           title="Видалити"
