@@ -228,7 +228,7 @@ const App: React.FC = () => {
               <StoryCard story={story} index={index} onUpdate={updateStory} onDelete={deleteStory} />
             </div>
           ))}
-          <button onClick={addStory} className="flex flex-col items-center justify-center gap-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[24px] p-6 hover:bg-gray-100 hover:border-gray-300 transition-all min-h-[400px]">
+          <button onClick={addStory} className="flex flex-col items-center justify-center gap-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-[24px] p-6 hover:bg-gray-100 hover:border-gray-300 transition-all min-h-[200px]">
             <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-400"><PlusIcon /></div>
             <span className="text-gray-500 font-medium">Додати сторіс</span>
           </button>

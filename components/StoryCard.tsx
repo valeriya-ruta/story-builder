@@ -25,7 +25,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, index, onUpdate, onDelete 
   };
 
   return (
-    <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-6 flex flex-col gap-4 group transition-all hover:shadow-md h-full min-h-[400px]">
+    <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-6 flex flex-col gap-4 group transition-all hover:shadow-md h-full min-h-[200px]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
