@@ -179,11 +179,31 @@ const App: React.FC = () => {
   };
 
   // Track interest in AI feature
-  const handleAIInterest = () => {
+  const handleAIInterest = async () => {
     console.log('User interested in AI feature');
-    // TODO: Track this interest (analytics, backend, etc.)
-    setShowAIFeatureModal(false);
-    alert('Дякую за твою підтримку! Я обов\'язково додам цю функцію! ♥️');
+    
+    const userEmail = localStorage.getItem('user_email');
+    
+    try {
+      const webhookUrl = 'https://hook.eu1.make.com/bpiwxj2xsvo5lvf13ua52dacj32vcbqf';
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userEmail || 'unknown',
+          website: 'StoryBuilder',
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      
+      setShowAIFeatureModal(false);
+      alert('Дякую за твою підтримку! Я обов\'язково додам цю функцію! ♥️');
+    } catch (error) {
+      console.error('Failed to send AI interest to webhook:', error);
+      // Still close the modal and show alert even if webhook fails
+      setShowAIFeatureModal(false);
+      alert('Дякую за твою підтримку! Я обов\'язково додам цю функцію! ♥️');
+    }
   };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -617,37 +637,37 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
     <div className={`min-h-screen pb-20 ${showEmailGate ? 'blur-sm pointer-events-none' : ''}`}>
       <header className="sticky top-0 z-40 bg-[#fbfbfd]/80 backdrop-blur-md py-6 mb-8 border-b border-gray-100 px-4 md:px-8 lg:px-12">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">StoryBoard</h1>
-            <p className="text-sm text-gray-500">Плануйте свої історії легко та швидко</p>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">StoryBoard</h1>
+          <p className="text-sm text-gray-500">Плануйте свої історії легко та швидко</p>
+        </div>
+        
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* History */}
+          <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 shadow-sm mr-1">
+            <button onClick={undo} disabled={past.length === 0} className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-colors"><UndoIcon /></button>
+            <div className="w-[1px] h-4 bg-gray-100 mx-1" />
+            <button onClick={redo} disabled={future.length === 0} className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-colors"><RedoIcon /></button>
           </div>
-          
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* History */}
-            <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 shadow-sm mr-1">
-              <button onClick={undo} disabled={past.length === 0} className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-colors"><UndoIcon /></button>
-              <div className="w-[1px] h-4 bg-gray-100 mx-1" />
-              <button onClick={redo} disabled={future.length === 0} className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-colors"><RedoIcon /></button>
-            </div>
 
-            {/* Project Controls */}
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setShowProjects(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium bg-white text-gray-700 border border-gray-200 hover:border-gray-400 transition-all shadow-sm"
+          {/* Project Controls */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowProjects(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium bg-white text-gray-700 border border-gray-200 hover:border-gray-400 transition-all shadow-sm"
                 title="Мої сторітели"
-              >
-                <FolderIcon />
+            >
+              <FolderIcon />
                 <span className="hidden sm:inline">Мої сторітели</span>
-              </button>
-              <button 
-                onClick={() => setShowSaveDialog(true)}
+            </button>
+            <button 
+              onClick={() => setShowSaveDialog(true)}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium bg-white text-gray-700 border border-gray-200 hover:border-gray-400 transition-all shadow-sm"
-                title="Зберегти проєкт"
-              >
-                <SaveIcon />
+              title="Зберегти проєкт"
+            >
+              <SaveIcon />
                 <span className="hidden sm:inline">Зберегти сторітелінг</span>
-              </button>
+            </button>
             </div>
           </div>
         </div>
@@ -826,10 +846,10 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
               )}
 
               {/* Stories in this column */}
-              <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-6">
                 {storytelling.stories.map((story, index) => (
-                  <div key={story.id} className="relative group/wrapper">
-                    <div className="absolute -left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 transition-opacity z-20">
+            <div key={story.id} className="relative group/wrapper">
+              <div className="absolute -left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 transition-opacity z-20">
                       {index > 0 && (
                         <button 
                           onClick={() => moveStory(storytelling.id, index, index - 1)} 
@@ -876,7 +896,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
               >
                 <PlusIcon />
                 <span>Додати сторітел</span>
-              </button>
+          </button>
             </div>
           </div>
         </div>
@@ -962,29 +982,29 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
                   {savedProjects.map((p) => {
                     const totalStories = p.storytellings?.reduce((sum, s) => sum + s.stories.length, 0) || 0;
                     return (
-                      <div 
-                        key={p.id} 
-                        onClick={() => loadProject(p)}
-                        className="group flex items-center justify-between p-5 rounded-2xl bg-gray-50 hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100 transition-all cursor-pointer"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm text-gray-400 group-hover:text-black transition-colors">
-                            <FolderIcon />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{p.name}</h4>
-                            <p className="text-xs text-gray-400">
-                              {p.storytellings?.length || 0} колонок • {totalStories} сторіс • {new Date(p.timestamp).toLocaleDateString()}
-                            </p>
-                          </div>
+                    <div 
+                      key={p.id} 
+                      onClick={() => loadProject(p)}
+                      className="group flex items-center justify-between p-5 rounded-2xl bg-gray-50 hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm text-gray-400 group-hover:text-black transition-colors">
+                          <FolderIcon />
                         </div>
-                        <button 
-                          onClick={(e) => deleteProject(p.id, e)}
-                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          <TrashIcon />
-                        </button>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{p.name}</h4>
+                          <p className="text-xs text-gray-400">
+                              {p.storytellings?.length || 0} колонок • {totalStories} сторіс • {new Date(p.timestamp).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
+                      <button 
+                        onClick={(e) => deleteProject(p.id, e)}
+                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
                     );
                   })}
                 </div>
