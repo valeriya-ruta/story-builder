@@ -222,6 +222,8 @@ const App: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: emailInput,
+          website: 'StoryBuilder',
+          path: '/storytelling',
           timestamp: new Date().toISOString(),
           userAgent: navigator.userAgent,
           referrer: document.referrer,
