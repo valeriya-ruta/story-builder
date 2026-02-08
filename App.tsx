@@ -678,7 +678,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
       <main className="px-4 md:px-8 lg:px-12">
         <div className="flex gap-6 overflow-x-auto pb-6 scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 transparent' }}>
           {storytellings.map((storytelling) => (
-            <div key={storytelling.id} className="flex-shrink-0 w-full md:w-[500px] lg:w-[550px]">
+            <div key={storytelling.id} className="flex-shrink-0 w-full md:w-[calc(33.333vw-32px)]">
               {/* Column Header */}
               <div className="mb-6 px-4">
                 <div className="flex items-center justify-between gap-3">
@@ -889,7 +889,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
           ))}
           
           {/* Add Column Button */}
-          <div className="flex-shrink-0 w-full md:w-[500px] lg:w-[550px]">
+          <div className="flex-shrink-0 w-full md:w-[calc(33.333vw-32px)]">
             <div className="mb-6 px-4">
               <button 
                 onClick={addStorytelling} 
