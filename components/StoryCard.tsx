@@ -73,7 +73,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, index, onUpdate, onDelete 
           value={story.text}
           onChange={handleTextChange}
           placeholder="Про що буде ця сторіс? Напишіть текст тут..."
-          className="w-full h-full resize-none bg-transparent text-lg text-gray-800 focus:outline-none placeholder-gray-300 leading-relaxed no-scrollbar"
+          className="w-full h-full resize-none bg-transparent text-base text-gray-800 focus:outline-none placeholder-gray-300 leading-relaxed no-scrollbar"
         />
       </div>
 
