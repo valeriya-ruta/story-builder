@@ -105,6 +105,17 @@ const App: React.FC = () => {
     }
   }, [userEmail]);
 
+  // Ensure email gate shows if no email is present
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('user_email');
+    if (!savedEmail && !userEmail) {
+      setShowEmailGate(true);
+    } else if (savedEmail && !userEmail) {
+      setUserEmail(savedEmail);
+      setShowEmailGate(false);
+    }
+  }, []);
+
   // Auto-save active storytellings (only if user has provided email)
   useEffect(() => {
     if (userEmail) {
@@ -173,6 +184,38 @@ const App: React.FC = () => {
     // TODO: Track this interest (analytics, backend, etc.)
     setShowAIFeatureModal(false);
     alert('Дякую за твою підтримку! Я обов\'язково додам цю функцію! ♥️');
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailSubmitting(true);
+    
+    if (!emailInput.trim() || !/\S+@\S+\.\S+/.test(emailInput)) {
+      setEmailSubmitting(false);
+      return;
+    }
+
+    try {
+      const webhookUrl = 'https://hook.eu1.make.com/re6rn5qbtrdr92nqiop24lks0qxgzehj';
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailInput,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+        }),
+      });
+
+      localStorage.setItem('user_email', emailInput);
+      setUserEmail(emailInput);
+      setShowEmailGate(false);
+    } catch (error) {
+      console.error('Failed to send email to webhook:', error);
+    } finally {
+      setEmailSubmitting(false);
+    }
   };
 
   // Gemini AI Analysis function (disabled - shows interest modal instead)
@@ -959,7 +1002,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
       
       {/* Email Gate Modal - shows on top of blurred app */}
       {showEmailGate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
           <div className="bg-white rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Отримай доступ безкоштовно!</h2>
