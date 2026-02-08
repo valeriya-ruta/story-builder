@@ -676,7 +676,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
       </header>
 
       <main className="px-4 md:px-8 lg:px-12">
-        <div className="flex gap-6 overflow-x-auto pb-6 scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 transparent' }}>
+        <div className="flex gap-6 overflow-x-auto pb-6 scroll-smooth pl-4 md:pl-8" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 transparent' }}>
           {storytellings.map((storytelling) => (
             <div key={storytelling.id} className="flex-shrink-0 w-full md:w-[calc(33.333vw-32px)]">
               {/* Column Header */}
