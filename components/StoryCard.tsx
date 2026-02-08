@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Story, VISUAL_OPTIONS, ENGAGEMENT_OPTIONS, VisualType, EngagementType } from '../types';
-import { TrashIcon, PaintIcon, InteractionIcon, GripIcon } from './Icon';
+import { TrashIcon, PaintIcon, InteractionIcon, GripIcon, CopyIcon, CheckIcon } from './Icon';
 
 interface StoryCardProps {
   story: Story;
@@ -12,8 +12,21 @@ interface StoryCardProps {
 }
 
 const StoryCard: React.FC<StoryCardProps> = ({ story, index, onUpdate, onDelete }) => {
+  const [copied, setCopied] = useState(false);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdate(story.id, { text: e.target.value });
+  };
+
+  const copyText = async () => {
+    if (!story.text.trim()) return;
+    try {
+      await navigator.clipboard.writeText(story.text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text!', err);
+    }
   };
 
   const toggleVisual = (option: VisualType) => {
@@ -25,19 +38,33 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, index, onUpdate, onDelete 
   };
 
   return (
-    <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-6 flex flex-col gap-4 group transition-all hover:shadow-md h-full min-h-[200px]">
+    <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 p-4 flex flex-col gap-4 group transition-all hover:shadow-md h-full min-h-[200px]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
           Сторіс {index + 1}
         </h3>
-        <button
-          onClick={() => onDelete(story.id)}
-          className="text-gray-300 hover:text-red-500 transition-colors p-1"
-          title="Видалити"
-        >
-          <TrashIcon />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={copyText}
+            disabled={!story.text.trim()}
+            className={`transition-colors p-1 ${
+              copied 
+                ? 'text-green-500' 
+                : 'text-gray-300 hover:text-gray-600'
+            } disabled:opacity-30 disabled:cursor-not-allowed`}
+            title={copied ? 'Скопійовано!' : 'Копіювати текст'}
+          >
+            {copied ? <CheckIcon /> : <CopyIcon />}
+          </button>
+          <button
+            onClick={() => onDelete(story.id)}
+            className="text-gray-300 hover:text-red-500 transition-colors p-1"
+            title="Видалити"
+          >
+            <TrashIcon />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
