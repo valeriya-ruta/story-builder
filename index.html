@@ -33,6 +33,29 @@
         .animate-spin {
             animation: spin 1s linear infinite;
         }
+        /* Smooth column reordering animation */
+        .column-container {
+            position: relative;
+        }
+        /* Only apply transitions when swapping */
+        .column-container.swap-left,
+        .column-container.swap-right,
+        .column-container.animating {
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.45s ease-in-out;
+        }
+        .column-container.animating {
+            z-index: 50 !important;
+            opacity: 0.6 !important;
+        }
+        /* Slide exactly one column width + gap */
+        /* gap-6 = 24px */
+        .column-container.swap-left {
+            transform: translateX(calc(-100% - 24px));
+        }
+        .column-container.swap-right {
+            transform: translateX(calc(100% + 24px));
+        }
     </style>
 <script type="importmap">
 {

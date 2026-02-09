@@ -36,6 +36,9 @@ const App: React.FC = () => {
   const [analysisResults, setAnalysisResults] = useState<Map<string, ColumnAnalysis>>(new Map());
   const [expandedAnalysisPanels, setExpandedAnalysisPanels] = useState<Set<string>>(new Set());
   const [showAIFeatureModal, setShowAIFeatureModal] = useState(false);
+  const [animatingColumnId, setAnimatingColumnId] = useState<string | null>(null);
+  const [animatingDirection, setAnimatingDirection] = useState<'left' | 'right' | null>(null);
+  const [swapState, setSwapState] = useState<{ fromId: string; toId: string } | null>(null);
   // Check localStorage synchronously for initial state
   const getInitialEmail = () => {
     if (typeof window !== 'undefined') {
@@ -49,7 +52,28 @@ const App: React.FC = () => {
   const [emailInput, setEmailInput] = useState('');
   const [emailSubmitting, setEmailSubmitting] = useState(false);
   
+  // Check if emoji feature popup has been shown
+  const getEmojiPopupShown = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('emoji_feature_popup_shown') === 'true';
+    }
+    return false;
+  };
+  
+  const [showEmojiFeaturePopup, setShowEmojiFeaturePopup] = useState(false);
+  
   const textTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Show emoji feature popup when user has email and hasn't seen it before
+  useEffect(() => {
+    if (userEmail && !getEmojiPopupShown() && !showEmailGate) {
+      // Small delay to ensure smooth transition after email gate
+      const timer = setTimeout(() => {
+        setShowEmojiFeaturePopup(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [userEmail, showEmailGate]);
 
   // Load state and projects from local storage (only after email is provided)
   useEffect(() => {
@@ -516,6 +540,50 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
     pushToHistory(storytellings.filter(s => s.id !== id));
   };
 
+  const moveColumnLeft = (id: string) => {
+    if (swapState) return; // Prevent double-click during animation
+    const index = storytellings.findIndex(s => s.id === id);
+    if (index > 0) {
+      const toId = storytellings[index - 1].id;
+      // Phase 1: Animate visually (no data change yet)
+      setAnimatingColumnId(id);
+      setAnimatingDirection('left');
+      setSwapState({ fromId: id, toId: toId });
+      
+      // Phase 2: After animation completes, swap the actual data
+      setTimeout(() => {
+        setAnimatingColumnId(null);
+        setAnimatingDirection(null);
+        setSwapState(null);
+        const newStorytellings = [...storytellings];
+        [newStorytellings[index - 1], newStorytellings[index]] = [newStorytellings[index], newStorytellings[index - 1]];
+        pushToHistory(newStorytellings);
+      }, 450);
+    }
+  };
+
+  const moveColumnRight = (id: string) => {
+    if (swapState) return; // Prevent double-click during animation
+    const index = storytellings.findIndex(s => s.id === id);
+    if (index < storytellings.length - 1) {
+      const toId = storytellings[index + 1].id;
+      // Phase 1: Animate visually (no data change yet)
+      setAnimatingColumnId(id);
+      setAnimatingDirection('right');
+      setSwapState({ fromId: id, toId: toId });
+      
+      // Phase 2: After animation completes, swap the actual data
+      setTimeout(() => {
+        setAnimatingColumnId(null);
+        setAnimatingDirection(null);
+        setSwapState(null);
+        const newStorytellings = [...storytellings];
+        [newStorytellings[index], newStorytellings[index + 1]] = [newStorytellings[index + 1], newStorytellings[index]];
+        pushToHistory(newStorytellings);
+      }, 450);
+    }
+  };
+
   const updateStorytellingName = (id: string, name: string) => {
     pushToHistory(storytellings.map(s => s.id === id ? { ...s, name } : s));
   };
@@ -678,8 +746,34 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
 
       <main className="px-4 md:px-8 lg:px-12">
         <div className="flex gap-6 overflow-x-auto pb-6 scroll-smooth pl-4 md:pl-8" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 transparent' }}>
-          {storytellings.map((storytelling) => (
-            <div key={storytelling.id} className="flex-shrink-0 w-full md:w-[calc(33.333vw-32px)]">
+          {storytellings.map((storytelling, index) => {
+            const isAnimating = animatingColumnId === storytelling.id;
+            
+            // Determine if this column needs to swap based on swapState
+            let swapClass = '';
+            if (swapState) {
+              const currentId = storytelling.id;
+              
+              // If this is the column being moved
+              if (currentId === swapState.fromId) {
+                // It should move to the target position
+                swapClass = animatingDirection === 'left' ? 'swap-left' : 'swap-right';
+              }
+              // If this is the column being swapped with
+              else if (currentId === swapState.toId) {
+                // It should move in the opposite direction
+                swapClass = animatingDirection === 'left' ? 'swap-right' : 'swap-left';
+              }
+            }
+            
+            return (
+            <div 
+              key={storytelling.id} 
+              className={`column-container flex-shrink-0 w-full md:w-[calc(33.333vw-32px)] ${
+                isAnimating ? 'animating' : ''
+              } ${swapClass}`}
+              style={isAnimating ? { opacity: 0.6 } : {}}
+            >
               {/* Column Header */}
               <div className="mb-6 px-4">
                 <div className="flex items-center justify-between gap-3">
@@ -709,17 +803,45 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
                       </button>
                     </div>
                   ) : (
-                    <div className="flex-1 flex items-center gap-2 group">
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        {storytelling.name}
-                      </h2>
-                      <button
-                        onClick={() => startEditingColumnName(storytelling.id, storytelling.name)}
-                        className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Редагувати назву"
-                      >
-                        <EditIcon />
-                      </button>
+                    <div className="flex-1 flex flex-col items-start gap-1 group">
+                      {/* Reorder arrows - appear on hover above name */}
+                      {storytellings.length > 1 && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => moveColumnLeft(storytelling.id)}
+                            disabled={index === 0}
+                            className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Перемістити вліво"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => moveColumnRight(storytelling.id)}
+                            disabled={index === storytellings.length - 1}
+                            className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Перемістити вправо"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                      {/* Column name with edit button */}
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          {storytelling.name}
+                        </h2>
+                        <button
+                          onClick={() => startEditingColumnName(storytelling.id, storytelling.name)}
+                          className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Редагувати назву"
+                        >
+                          <EditIcon />
+                        </button>
+                      </div>
                     </div>
                   )}
                   <div className="flex items-center gap-1">
@@ -887,7 +1009,8 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
           
           {/* Add Column Button */}
           <div className="flex-shrink-0 w-full md:w-[calc(33.333vw-32px)]">
@@ -1062,6 +1185,36 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
                 </button>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Emoji Feature Popup */}
+      {showEmojiFeaturePopup && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 animate-in fade-in zoom-in duration-300">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+              Нова функція: вибір емодзі!
+            </h2>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Додавати емодзі в твої сторітели стало легше - просто натисни на панель ліворуч, клікни на потрібне емодзі і вставляй в текст!
+            </p>
+            <button
+              onClick={() => {
+                localStorage.setItem('emoji_feature_popup_shown', 'true');
+                setShowEmojiFeaturePopup(false);
+              }}
+              className="w-full py-3 rounded-xl font-medium text-white transition-colors"
+              style={{ backgroundColor: '#004BA8' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#003d8f';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#004BA8';
+              }}
+            >
+              Вау, Рута, дякую!
+            </button>
           </div>
         </div>
       )}
