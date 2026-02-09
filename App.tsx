@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Story, Storytelling, ColumnAnalysis } from './types';
 import { PlusIcon, CopyIcon, UndoIcon, RedoIcon, SaveIcon, FolderIcon, XIcon, TrashIcon, EditIcon, CheckIcon, AIIcon, LoadingSpinner, ChevronDownIcon, ChevronUpIcon, SparklesIcon } from './components/Icon';
 import StoryCard from './components/StoryCard';
+import EmojiPicker from './components/EmojiPicker';
 
 // Helper to generate IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -1064,6 +1065,12 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
           </div>
         </div>
       )}
+      
+      {/* Emoji Picker */}
+      <EmojiPicker onEmojiSelect={(emoji) => {
+        // Emoji is already copied in the component
+        console.log('Emoji selected:', emoji);
+      }} />
     </>
   );
 };
