@@ -198,6 +198,22 @@ const App: React.FC = () => {
     pushToHistory([...storytellings, newStorytelling]);
   };
 
+  const createNewProject = () => {
+    if (confirm('Створити новий проєкт? Поточні колонки будуть видалені.')) {
+      const newStorytelling: Storytelling = {
+        id: generateId(),
+        name: 'Storytelling 1',
+        stories: [{ id: generateId(), text: '', visual: null, engagement: null }]
+      };
+      pushToHistory([newStorytelling]);
+      // Clear any analysis results
+      setAnalysisResults(new Map());
+      setExpandedAnalysisPanels(new Set());
+      setEditingColumnName(null);
+      setTempColumnName('');
+    }
+  };
+
   // Show AI feature interest modal
   const handleAIClick = () => {
     setShowAIFeatureModal(true);
@@ -738,6 +754,14 @@ IMPORTANT: Return ONLY valid JSON in this exact format (no markdown, no addition
             >
               <SaveIcon />
                 <span className="hidden sm:inline">Зберегти сторітелінг</span>
+            </button>
+            <button 
+              onClick={createNewProject}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium bg-black text-white hover:bg-gray-800 transition-all shadow-sm"
+              title="Створити новий проєкт"
+            >
+              <PlusIcon />
+              <span className="hidden sm:inline">Створити новий</span>
             </button>
             </div>
           </div>
